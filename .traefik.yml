@@ -12,6 +12,9 @@ testData:
     clientSecret: fake-secret
   cookie:
     secret: mySecretKey
+  groups:
+    serviceAccountJSON: '{"type":"service_account","project_id":"example","private_key_id":"key-id","private_key":"-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----\n","client_email":"service@example.iam.gserviceaccount.com","client_id":"1234567890","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token"}'
+    subject: admin@example.com
   authorized:
     emails:
       - name@gmail.com

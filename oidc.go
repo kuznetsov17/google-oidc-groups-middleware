@@ -42,7 +42,8 @@ type Config struct {
 	OIDC       OIDCConfig
 	Cookie     CookieConfig
 	Authorized AuthorizedConfig
-	Debug      bool // Enable debug logging to stdout.
+	Groups     GroupsConfig // Google Groups configuration.
+	Debug      bool         // Enable debug logging to stdout.
 }
 
 type CookieConfig struct {
@@ -62,6 +63,11 @@ type AuthorizedConfig struct {
 	Emails  []string // List of allowed email addresses.
 	Domains []string // List of allowed domains.
 	Groups  []string // List of allowed Google Group names.
+}
+
+type GroupsConfig struct {
+	ServiceAccountJSON string // Google service account JSON key.
+	Subject            string // Service account subject for domain-wide delegation.
 }
 
 type OIDCConfig struct {
@@ -157,16 +163,14 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 	// Initialize Google Groups fetcher if groups are configured.
 	var groupsFetcher *groupsFetcher
 	if len(config.Authorized.Groups) > 0 {
-		saJSON := os.Getenv("GOOGLE_SERVICE_ACCOUNT_JSON")
-		subject := os.Getenv("GOOGLE_GROUPS_SUBJECT")
-		if saJSON == "" {
-			return nil, fmt.Errorf("GOOGLE_SERVICE_ACCOUNT_JSON env var required when authorized.groups is configured")
+		if config.Groups.ServiceAccountJSON == "" {
+			return nil, fmt.Errorf("groups.serviceAccountJSON required when authorized.groups is configured")
 		}
-		if subject == "" {
-			return nil, fmt.Errorf("GOOGLE_GROUPS_SUBJECT env var required when authorized.groups is configured")
+		if config.Groups.Subject == "" {
+			return nil, fmt.Errorf("groups.subject required when authorized.groups is configured")
 		}
 		var err error
-		groupsFetcher, err = newGroupsFetcher(saJSON, subject)
+		groupsFetcher, err = newGroupsFetcher(config.Groups.ServiceAccountJSON, config.Groups.Subject)
 		if err != nil {
 			return nil, fmt.Errorf("failed to initialize groups fetcher: %w", err)
 		}

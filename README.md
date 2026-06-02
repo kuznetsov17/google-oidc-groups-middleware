@@ -30,19 +30,16 @@ client secret. See the [Google developer docs](https://developers.google.com/ide
 | cookie.domain      |                |          | Domain attribute for cookies. Use this to share cookies across subdomains (e.g., `.example.com`). Must start with a dot. Required when using `oidc.redirectHost`.                  |
 | authorized.emails  |                |          | List of allowed email addresses.                                                                                                                                                  |
 | authorized.domains |                |          | List of allowed domains.                                                                                                                                                          |
-| authorized.groups  |                |          | List of allowed Google Group names. Requires `GOOGLE_SERVICE_ACCOUNT_JSON` and `GOOGLE_GROUPS_SUBJECT` environment variables to be set.                                             |
+| authorized.groups  |                |          | List of allowed Google Group names. Requires `groups.serviceAccountJSON` and `groups.subject` to be configured.                                                                  |
+| groups.serviceAccountJSON |         |          | Google service account JSON key with domain-wide delegation enabled. Required when `authorized.groups` is configured.                                                             |
+| groups.subject     |                |          | Email address of a Google Workspace admin user for domain-wide delegation impersonation. Required when `authorized.groups` is configured.                                        |
 | debug              | false          |          | Enable debug logging to stdout.
 
 **Note:** At least one of `authorized.emails`, `authorized.domains`, or `authorized.groups` must be configured.
 
-## Environment Variables for Google Groups
+## Google Groups Configuration
 
-When using `authorized.groups`, the following environment variables must be set:
-
-| Variable | Description |
-|----------|-------------|
-| `GOOGLE_SERVICE_ACCOUNT_JSON` | Full JSON content of the Google Cloud service account key file with domain-wide delegation enabled. Required when `authorized.groups` is configured. |
-| `GOOGLE_GROUPS_SUBJECT` | Email address of a Google Workspace admin user for domain-wide delegation impersonation. Required when `authorized.groups` is configured. |
+When using `authorized.groups`, you must configure `groups.serviceAccountJSON` and `groups.subject` in your middleware configuration.
 
 ### Setup Instructions
 
@@ -56,11 +53,8 @@ When using `authorized.groups`, the following environment variables must be set:
    - Go to Security → API controls → Domain-wide delegation
    - Add the service account with the scopes listed above
 
-4. **Pass credentials to Traefik:**
-   ```bash
-   export GOOGLE_SERVICE_ACCOUNT_JSON='<full JSON content of service account key>'
-   export GOOGLE_GROUPS_SUBJECT='admin@yourdomain.com'
-   ```
+4. **Obtain the service account key** from Google Cloud Console:
+   - Download the service account key file and extract its full JSON content
 
 5. **Find group names** in Google Workspace Admin (Groups section) — use the display name (e.g., "Developers", "Admins"), not the email address.
 
@@ -143,7 +137,7 @@ http:
 In this example, a user is allowed if they have **any** of:
 - Email address `name@gmail.com`
 - Domain `example.com`
-- Group membership in `Developers` or `Admins` (requires `GOOGLE_SERVICE_ACCOUNT_JSON` and `GOOGLE_GROUPS_SUBJECT` env vars)
+- Group membership in `Developers` or `Admins`
 
 ## Multi-Subdomain Configuration
 
@@ -282,17 +276,14 @@ http:
             clientSecret: fake-secret
           cookie:
             secret: mySecretKey
+          groups:
+            serviceAccountJSON: '{"type":"service_account","project_id":"my-project","private_key_id":"key-id","private_key":"-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----\n","client_email":"service@my-project.iam.gserviceaccount.com","client_id":"123456789","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token"}'
+            subject: admin@example.com
           authorized:
             groups:
               - Engineering
               - Product
               - Leadership
-```
-
-With environment variables:
-```bash
-export GOOGLE_SERVICE_ACCOUNT_JSON='{"type":"service_account",...}'
-export GOOGLE_GROUPS_SUBJECT='admin@example.com'
 ```
 
 ### Getting Group Names
