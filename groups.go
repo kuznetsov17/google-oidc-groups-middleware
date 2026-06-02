@@ -2,7 +2,7 @@
 // Andrew Kroh licenses this file to you under the Apache 2.0 License.
 // See the LICENSE file in the project root for more information.
 
-package google_oidc_auth_middleware
+package google_oidc_groups_middleware
 
 import (
 	"crypto"

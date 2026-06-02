@@ -1,4 +1,4 @@
-package google_oidc_auth_middleware
+package google_oidc_groups_middleware
 
 import (
 	"encoding/base64"
