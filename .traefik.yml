@@ -2,7 +2,7 @@ displayName: Google OIDC Auth
 type: middleware
 iconPath: .assets/icons8-google-160.png
 
-import: github.com/andrewkroh/google-oidc-auth-middleware
+import: github.com/kuznetsov17/google-oidc-groups-middleware
 
 summary: Google OpenID Connect authentication middleware.
 
